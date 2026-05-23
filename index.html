@@ -80,6 +80,45 @@
     margin-top: 0.4rem;
   }
 
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 1.5rem 2rem 0;
+    position: relative;
+    z-index: 1;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.6rem 1.6rem 0.75rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    position: relative;
+    bottom: -1px;
+  }
+
+  .tab-btn:hover { color: var(--amber); }
+
+  .tab-btn.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  /* TAB PANELS */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* HERO TAB */
   .search-wrap {
     display: flex;
     justify-content: center;
@@ -114,7 +153,6 @@
     color: var(--text-dim); font-size: 0.9rem; pointer-events: none;
   }
 
-  /* GRID */
   .grid-section {
     padding: 1.5rem 2rem 2rem;
     position: relative;
@@ -206,7 +244,6 @@
 
   .hero-card[hidden] { display: none; }
 
-  /* DETAIL */
   .detail-section {
     padding: 2rem;
     position: relative;
@@ -356,6 +393,104 @@
     font-size: 0.72rem;
     letter-spacing: 0.2em;
   }
+
+
+  /* ITEM GROUPS */
+  .item-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 0.7rem 0.9rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: border-color 0.12s, background 0.12s;
+    margin-bottom: 0.45rem;
+  }
+
+  .item-group:hover {
+    border-color: var(--gold-dim);
+    background: #1e1a14;
+  }
+
+  .item-group-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 3px;
+    margin-top: 2px;
+    image-rendering: crisp-edges;
+  }
+
+  .item-group-icon-placeholder {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    background: var(--border);
+    border-radius: 3px;
+    margin-top: 2px;
+  }
+
+  .item-group-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item-group-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    margin-bottom: 0.35rem;
+  }
+
+  .item-group-changes {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .item-group-change {
+    display: flex;
+    gap: 0.65rem;
+    align-items: baseline;
+    font-size: 0.97rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .item-group-bullet {
+    color: var(--gold-dim);
+    flex-shrink: 0;
+    font-size: 0.55rem;
+    margin-top: 0.2rem;
+  }
+
+  /* GENERAL / ITEMS / STREET BRAWL TABS */
+  .flat-tab-content {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.2s ease;
+  }
+
+  .flat-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.35em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .flat-section-title:first-child { margin-top: 0; }
 </style>
 </head>
 <body>
@@ -363,27 +498,50 @@
 <header>
   <div class="title-label">Patch Notes</div>
   <h1>DEADLOCK</h1>
-  <div class="subtitle">Hero Balance Changes</div>
+  <div class="subtitle">Balance Changes</div>
 </header>
 
-<div class="search-wrap">
-  <div class="search-box">
-    <input type="text" id="heroSearch" placeholder="Search heroes…" autocomplete="off">
-    <span class="search-icon">⌕</span>
+<nav class="tab-bar">
+  <button class="tab-btn active" data-tab="heroes">Heroes</button>
+  <button class="tab-btn" data-tab="general">General</button>
+  <button class="tab-btn" data-tab="items">Items</button>
+  <button class="tab-btn" data-tab="streetbrawl">Street Brawl</button>
+</nav>
+
+<!-- HEROES TAB -->
+<div class="tab-panel active" id="tab-heroes">
+  <div class="search-wrap">
+    <div class="search-box">
+      <input type="text" id="heroSearch" placeholder="Search heroes…" autocomplete="off">
+      <span class="search-icon">⌕</span>
+    </div>
   </div>
+  <section class="grid-section">
+    <div class="hero-grid" id="heroGrid"></div>
+  </section>
+  <section class="detail-section" id="detailSection">
+    <div class="empty-state" id="emptyState">
+      <div class="big-icon">⚔</div>
+      <p>Select a hero above<br>to view their patch changes</p>
+    </div>
+    <div class="hero-panel" id="heroPanel" style="display:none"></div>
+  </section>
 </div>
 
-<section class="grid-section">
-  <div class="hero-grid" id="heroGrid"></div>
-</section>
+<!-- GENERAL TAB -->
+<div class="tab-panel" id="tab-general">
+  <div class="flat-tab-content" id="generalContent"></div>
+</div>
 
-<section class="detail-section" id="detailSection">
-  <div class="empty-state" id="emptyState">
-    <div class="big-icon">⚔</div>
-    <p>Select a hero above<br>to view their patch changes</p>
-  </div>
-  <div class="hero-panel" id="heroPanel" style="display:none"></div>
-</section>
+<!-- ITEMS TAB -->
+<div class="tab-panel" id="tab-items">
+  <div class="flat-tab-content" id="itemsContent"></div>
+</div>
+
+<!-- STREET BRAWL TAB -->
+<div class="tab-panel" id="tab-streetbrawl">
+  <div class="flat-tab-content" id="streetbrawlContent"></div>
+</div>
 
 <script>
 const HEROES = [
@@ -428,46 +586,392 @@ const HEROES = [
 ];
 
 const PATCH_NOTES = {
-  "Abrams": ["Fixed speed coming out of canceling Shoulder Charge being too high when hitting a hero"],
-  "Apollo": ["Disengaging Sigil base damage reduced from 100 to 85"],
-  "Bebop": [],
-  "Billy": ["Rising Ram T3 now also reduces cooldown by 10s"],
-  "Calico": [],
-  "Celeste": ["Bullet cycle time reduced from 0.65 to 0.58","Shining Wonder radius increased from 14m to 15.5m","Shining Wonder damage increased from 120 to 135"],
-  "Doorman": ["Fixed a bug that could allow you to bring the Urn through a doorway"],
-  "Drifter": ["Rend T3 now also increases melee scaling (1.2 to 1.6)","Bloodscent T3 increased from +10% Amplified Damage to +12%"],
-  "Dynamo": ["Kinetic Pulse spirit scaling reduced from 1.8 to 1.65","Quantum Entanglement cooldown increased from 19s to 20s"],
-  "Graves": [],
-  "Grey Talon": [],
-  "Haze": ["Restored being able to slide while using Bullet Dance","Bullet Dance range increased from 15m to 16m","Bullet Dance now has 30% evasion in the base ability","Bullet Dance T2 changed from \"+10% Fire Rate and -45s Cooldown\" to \"+10% Fire Rate and +3m Move Speed\"","Bullet Dance T3 changed from \"+60% Evasion and +4m Move Speed\" to \"+40% Evasion and -75s Cooldown\""],
-  "Holliday": ["Fixed Rising Ram interrupting Lasso","Spirit Lasso T1 increased from +68 Damage to +80","Spirit Lasso T3 increased from -30s Cooldown to -50s"],
-  "Infernus": ["Flame Dash DPS spirit scaling reduced from 1.0 to 0.7","Flame Dash DPS now does half damage to objective"],
+  "Abrams": ["Infernal Resilience T1 changed from '+1.5 Health Regen' to '+200 Max Health'","Infernal Resilience T2 changed from '200 Max Health' to '+18% Melee Lifesteal' (40% effective vs non-heroes)","Seismic Impact T2 increased from +0.7s Stun Duration to +0.8s","Seismic Impact T3 Unstoppable duration increased from 5s to 6s"],
+  "Apollo": ["Improved the hero's hitboxes (easier to hit)","Base regen reduced from 2 to 1","Riposte no longer automatically dashes. It now grants you a sub ability immediately to target the hero you want to jump to for a brief duration (can target the enemy before the parry to buffer it). Cast range is 25m.","Riposte no longer triggers on damage auras (things like Flame Dash)","Riposte no longer triggers off of objective damage","Flawless Advance hitbox reduced by 10%"],
+  "Bebop": ["Bullet damage per boon reduced from 0.139 to 0.115","Exploding Uppercut T2 weapon damage reduced from +40% to +30%","Sticky Bomb T2 increased from +75 Damage to +85"],
+  "Billy": ["Health per boon increased from +48 to +59","Bullet damage per boon reduced from 0.165 to 0.142","Rising Ram cooldown increased from 30s to 32s","Rising Ram T2 increased from +0.3s Duration to +0.4s","Rising Ram T3 increased from -10s Cooldown to -13s"],
+  "Calico": ["Gloom Bomb T2 changed from '+75 Damage to Barriers' to '-5% Melee Resist for 5s Per Bomb' (stacks)"],
+  "Celeste": ["Improved the hero's hitboxes (easier to hit)","Stamina cooldown increased from 4.5s to 5s","Radiant Daggers T2 changed from '-18s Cooldown and +70 Damage' to '-22s Cooldown and +80 Damage'","Shining Wonder T2 increased from +50 Damage to +70"],
+  "Doorman": ["Call Bell radius reduced from 6m to 5.5m","Call Bell T3 radius increased from +4m to +4.5m","Call Bell explosion damage spirit scaling reduced from 1.4 to 1.3","Call Bell inaccuracy debuff no longer diminishes from 100% to 0% over 1 second (the rest of the debuff is 4s)","Call Bell inaccuracy debuff reduced from -100% to -40% (lasts the full duration)","Doorways close sub ability now starts on cooldown for 8s","Doorway is no longer unsilenceable","Fixed recent bug causing Luggage Cart not being dispelled"],
+  "Drifter": ["Rend T3 no longer increases scaling by 0.4","Rend T3 now also deals Heavy Melee Damage (0.55 scale)"],
+  "Dynamo": ["Kinetic Pulse T2 reduced from -18% Bullet Resistance to -15%","Kinetic Pulse spirit scaling reduced from 1.65 to 1.55","Quantum Entanglement T3 changed from dispelling non-ult debuffs to reducing the duration of non-ult debuffs by 50%"],
+  "Graves": ["Sprint speed increased from 1.6 to 2.2","Grasping Hands now spawns a ghoul in the base ability (T3 still increases it by 1)","Updated dash ranges for Deadheads to be calculated from the center of Graves when they are following her","Fixed Fire Rate buffs for Deadheads not being applied to their next attack, but only on subsequent attacks","Fixed Deadheads being unable to dash through veils","Fixed Deadheads being unable to dash to targets at the very end of your attack range when they are in follow mode","Fixed Deadhead's damage taken from bullets being unaffected by fall-off","Added 0.1s buffer duration for Deadheads losing line-of-sight before they stop following an enemy","Fixed Deadheads becoming inactive if Graves dies while they are following her","Jar of Dead spirit scaling reduced from 0.35 to 0.31","Increased speed & acceleration of Deadheads only when they are following Graves - doesn't affect in-combat","Fixed certain projectiles (i.e Gray Talon's Bird) colliding with Deadheads","Melee now also sets the dash target for Deadheads","Bullet damage and growth reduced by -10%"],
+  "Grey Talon": ["Rain of Arrows cooldown reduced from 30s to 22s","Rain of Arrows cast delay reduced from 0.5s to 0.2s","Rain of Arrows duration reduced from 7s to 4s","Rain of Arrows moving ability in air improved","Rain of Arrows stamina distance changed from being -9% to +25%","Rain of Arrows Weapon Damage bonus reduced from +4 to +3","Rain of Arrows T1 changed from '-14s Cooldown' to '+3 Weapon Damage and +30% Slow for 1.5s'","Rain of Arrows T2 changed from '+5 Weapon Damage and +40% Slow for 1.5s' to '-13s Cooldown' (Total CD from 16s to 9s)"],
+  "Haze": ["Fixation T3 increased from +0.12 to +0.14"],
+  "Holliday": ["Base bullet damage increased from 18.8 to 19.7","Health regen increased from 1 to 2"],
+  "Infernus": ["Bullet size increased from 3 to 4","Concussive Combustion T3 increased from +0.75s Stun Duration to +0.9s"],
   "Ivy": [],
-  "Kelvin": [],
+  "Kelvin": ["Frost Grenade damage spirit scaling reduced from 0.7 to 0.6","When interrupted on Ice Path, it no longer creates an ice path below him and instead lets him fall to the ground","Arctic Beam DPS spirit scaling reduced from 0.5 to 0.38"],
   "Lady Geist": [],
-  "Lash": [],
-  "McGinnis": ["Mini Turrets bounty from 80 + 2/minute to 40 + 4/minute","Fixed Mini Turrets being locked on objectives when they were invulnerable","Medicinal Specter duration increased from 6s to 6.5s"],
-  "Mina": ["Nox Nostra DPS reduced by 6%"],
-  "Mirage": ["Base health regen reduced from 2 to 1.5","Fire Scarabs duration reduced from 8s to 7s"],
-  "Mo & Krill": ["Burrow move speed increased from +4 to +5"],
-  "Paige": ["Stamina increased from 2 to 3","Dash speed reduced to slow bucket","Plot Armor cooldown reduced from 30s to 28s","Bookwyrm recharge timer reduced from 8s to 7s"],
-  "Paradox": ["Kinetic Carbine cooldown reduced from 30s to 28s","Time Wall T2 weapon damage increased from +30% to +35%","Kinetic Carbine now provides +20% Air Dash Distance when charged"],
-  "Pocket": ["Enchanter's Satchel spirit scaling increased from 0.9 to 1.1","Affliction cooldown reduced from 150s to 140s"],
-  "Rem": ["Fixed a bug with Naptime that allowed you to attack while casting it","Pillow Toss recharge timer reduced from 10s to 9s"],
-  "Seven": [],
-  "Shiv": ["Alt fire knockback reduced by 10%","Serrated Knives spirit scaling reduced from 0.15 to 0.13","Serrated Knives T3 spirit scaling reduced from +0.1 to +0.09"],
-  "Silver": ["Fixed Tail Whack applying -12% Bullet Resist for the Disarm duration","Slam Fire Current Health As Damage reduced from 4% to 3%"],
+  "Lash": ["Bullet damage per boon reduced from 0.341 to 0.31","Ground Strike damage per meter spirit scaling increased from 0.0372 to 0.04","Grapple T2 bonus damage no longer stacks with itself, but instead refreshes the duration","Grapple T3 now also grants +1 Charge"],
+  "McGinnis": ["Bullet damage per boon increased from 0.17 to 0.18","Fixed Heavy Barrage not triggering Diviner's Kevlar","Medicinal Specter radius increased from 5.5m to 6m"],
+  "Mina": ["Innate -8% Debuff Resist","Fixed Rake sometimes not working with high ping","Love Bites T3 increased from -4s Cooldown to -5s","Love Bites no longer applies the flat on hit damage to abilities (was doing 20% of its value on Nox Nostra)","Nox Nostra T3 reduced from 1% Current HP to 0.5%"],
+  "Mirage": ["Updated Djinn's Mark visuals"],
+  "Mo & Krill": ["Getting hit with a melee no longer knocks you up when you are burrowed","Sand Blast T3 increased from +1s Duration to +1.5s"],
+  "Paige": ["Bookwyrm T2 improved from -8s Cooldown to -12s","Rallying Charge T3 increased from +135 Damage to +160","Rallying Charge now has half cooldown if it hits no allies or enemies"],
+  "Paradox": ["Time Wall T1 duration increased from +2.5s to +3.5s","Time Wall T3 increased from +1 Charge to +2","Time Wall T3 Charge Delay reduced from 4s to 2s","Kinetic Carbine T3 increased from +50% Max Damage Scaling to +55%","Paradoxical Swap damage increased from 125 to 150"],
+  "Pocket": ["Flying Cloak T2 weapon damage duration reduced from 8s to 6s","Affliction cooldown increased from 140s to 150s"],
+  "Rem": ["Pillow Toss charge time reduced from 9s to 8s","Pillow Toss T3 increased from +90 to +100 Damage","Tag Along burst heal now also applies to secondary allies that you jump to","Tag Along lingering heal duration reduced from 3s to 2s (values rebalanced to be the same overall heal just faster)","Tag Along T2 Barrier and Item Duration/Range effectiveness increased from 25% to 35%","Tag Along T3 now also increases Missing Health Heal from 0.03 to 0.05 and Regen Per Second from 0.66 to 1.0","Tag Along can now be cast through veils","Reduced lockout period after ejecting from Tag Along from 1s to 0.3s","Tag Along time to fly to your ally is now 50% faster","Tag Along fixed specific abilities/items that could kill Rem while he's napping","Tag Along now allows friendly auras to affect Rem","Tag Along eject is no longer affected by debuff resistance and now launches upwards slightly more","Tag Along eject no longer briefly restricts movement abilities and input","Naptime now provides +30% damage reduction in the base ability (T3 still adds +50%)"],
+  "Seven": ["Bullet damage growth reduced from 0.374 to 0.337","Crit reduction increased from 35% to 55%"],
+  "Shiv": ["Slice and Dice T2 reduced from -8% Spirit Resist to -6%","Bloodletting Deferred Damage Cleared reduced from 40% to 35%","Bloodletting T3 increased from +45% Deferred Damage Cleared to +50%","Killing Blow cooldown increased from 105s to 125s","Killing Blow full rage damage bonus reduced from 14% to 12%","Killing Blow T2 increased from +8% Full Rage Damage Bonus to +10%","Killing Blow T2 now also reduces cooldown by -30s"],
+  "Silver": ["Bullet Cycle Time reduced from 0.9s to 0.85s (overall DPS adjusted to remain the same)","Entangling Bola no longer prevents you from jumping and mantling","Entangling Bola T2 changed from '+0.75s Duration' to '-5s Cooldown'","Entangling Bola T3 changed from '-5s Cooldown and Ricochet to 2 additional targets' to '+0.75s Duration and Ricochet to 2 additional targets'","Lycan Curse Fire Rate reduced from 80% to 65%","Lycan Curse Fire Rate spirit scaling increased from 0.25 to 0.45"],
   "Sinclair": [],
-  "Venator": ["Gutshot damage scaling reduced from 0.8 to 0.7","Gutshot wall hit damage scaling reduced from 0.9 to 0.8"],
-  "Victor": ["Aura of Suffering T2 increased from +28 Max DPS to +34","Shocking Reanimation T3 increased from -100s Cooldown to -130s"],
+  "Venator": ["Health increased from 790+43/boon to 830+48/boon","Hex-Lined Snap Trap T3 increased from +25% Damage Against Revealed Targets to +30%","Hex-Lined Snap Trap T3 now also grants +1 Charge"],
+  "Victor": ["Bullet damage reduced from 13+0.3135 to 12+0.26","Jumpstart T3 spirit scaling increased from +0.6 to +0.9","Aura of Suffering now does 50% damage to objectives"],
   "Vindicta": [],
-  "Viscous": ["Goo Ball lockout period from being affected again reduced from 1.35 to 1.2 (a previous bug with increased debuff resistance for subsequent CC not working correctly on this ability was fixed recently)","Fixed various locations where Splatter didn't bounce properly"],
-  "Vyper": ["Lethal Venom cooldown increased from 24s to 28s","Lethal Venom T2 increased from -8s Cooldown to -12s","Lethal Venom cast range reduced from 15m to 10m and now scales with boons (0.2)","Fixed Armor Piercing Rounds doing damage through Petrify"],
-  "Warden": [],
+  "Viscous": ["Puddle Punch T1 now also increases damage by +20","Puddle Punch T2 no longer increases damage by +30","Puddle Punch T2 now also grants +40% Lifesteal (1/4th against non-heroes)"],
+  "Vyper": ["Screwjab Dagger T2 bullet resist per stack from -5% to -6%","Screwjab Dagger T3 now also increases max stacks by 2"],
+  "Warden": ["Bullet damage per boon reduced from 0.38 to 0.34","Willpower T3 debuff resistance now retroactively applies to existing debuffs when cast","Binding Word T2 no longer increases cast range by +12m"],
   "Wraith": [],
-  "Yamato": [],
+  "Yamato": ["Power Slash post cast time reduced from 0.4s to 0.2s","Power Slash spirit scaling increased from 1.86 to 2.1","Flying Slash range increased from 25m to 30m","Flying Slash T2 no longer grants +20m Cast Range","Flying Slash T3 now also grants +15m Cast Range","Flying Slash T3 increased from +1 Charge to +2","Fixed Crimson Slash not being able to hit anything if the player is aimed too high or low","Shadow Transformation T1 increased from +5 Weapon Damage to +7"],
 };
 
+const GENERAL_NOTES = [
+  "Base HP reduced by 10 for all heroes",
+  "HP per boon reduced by 3",
+  "Guardians scaling resistance from +75%->-50% over 12 minutes to +50%->-50% (takes more damage early)",
+  "Medium neutrals initial spawn time reduced from 6 minutes to 5 minutes",
+  "Breakables spawn time increased from 2 minutes to 3 minutes",
+  "Shrines are now invulnerable until one pair of Base Guardians are destroyed",
+  "Backdoor removal linger duration reduced from 20s to 14s",
+  "Knockup durations are now affected by debuff reduction",
+  "Removed two jump pads from around the middle of the map that point outwards (to the left and right respectively)",
+  "Sliding no longer resets sprint speed",
+  "Stamina Regeneration is reduced by 25% for 5s after using a Wall Jump. This does not trigger when out of combat or when mantling soon after.",
+  "Bullet Velocity now stacks additively rather than diminishingly",
+  "Medic trooper heal duration increased from 2s to 4s (same overall heal amount)",
+  "When receiving multiple Medic trooper orbs the duration will now be added on top rather than stacking directly (so picking up 4 in a row will give the regen over 16s instead of over 4s, overall heal is the same just slower)",
+  "Medic Trooper heal increased from 12% missing hp to 13%",
+  "Fixed Parry FX not always matching state",
+  "Base Guardian Bullet Resistance increased from 10% to 20%",
+  "Shrine Bullet Resistance increased from 10% to 20%",
+  "Tier 2 Bullet Resistance increased from 25% to 35%",
+  "Midboss now starts spawned at the beginning of the game",
+  "Total Damage Reduction debuffs now stack diminishingly rather than additively (Inhibitor, Fire Scarabs, etc)",
+  "Movespeed diminish point increased from 11 to 12 (very slightly less aggressive diminishing scaling)",
+  "Weapon Investment Bonus now has a 6.4k line, changed from 4.8k/7.2k/9.6k/16k to 4.8k/6.4k/8k/11.2k/16k with bonuses from 46/55/70/85 to 46/54/62/74/86",
+  "Vitality Investment Bonus now has a 6.4k line, changed from 4.8k/7.2k/9.6k/16k to 4.8k/6.4k/8k/11.2k/16k with bonuses from 38/42/46/50 to 38/42/46/50 (final two tiers shifted up by +4)",
+  "Spirit Investment Bonus now has a 6.4k line, changed from 4.8k/7.2k/9.6k/16k to 4.8k/6.4k/8k/11.2k/16k with bonuses from 38/48/57/66 to 38/45/52/59/66",
+  "Fixed various item barrier durations not scaling with duration increases",
+  "Walkers will interrupt a rocket barrage during the 1s windup if stomp becomes an option",
+  "Fixed a bug where walkers were spinning while lasering",
+  "Smoothed zipline grabbing to fix some jitter",
+  "Added ropes to zipline binding (so if a player rebinds zipline to something other than SPACE it will also apply to mounting/dismounting ropes)",
+  "Removed delay on ziplines when using alternative key binds",
+  "Fixed the following abilities taking you out of zoom temporarily when cast: Blasted, Gloom Bombs, Shining Wonder, Call Bell, Luggage Cart, Stalker's Mark, Rejuvenating Aurora, Charged Shot, Powder Keg, Bounce Pad, Spirit Lasso, Napalm, Ice Path, Flog, Spectral Wall, Rake, Fire Scarabs, Scorn, Sand Blast, Time Wall, Paradoxical Swap, Barrage, Flying Cloak, Pillow Toss, Lightning Ball, Entangling Bola, Go For The Throat, Vexing Bolt, Consecrating Grenade, Gut Shot, Snap Trap, Ira Domini, Pain Battery, Jump Start, Flight, Crow Familiar, Lethal Venom, Petrifying Bola, Alchemical Flask, Card Trick, Capacitor, Restorative Locket, Healing Nova, Silence Wave, Magic Carpet, Refresher",
+  "Fixed the following items and abilities not working through veils: Heroic Aura, Healing Rite, Healing Nova, Rescue Beam, Divine Barrier, Kudzu Connection, Cube, Tag Along, Lil Helpers, Guardian Ward, Scourge, Plot Armor",
+  "[ Soul Urn ] To pickup the Urn, rather than standing in place to channel, you now light or heavy melee the Urn to pick it up.",
+  "[ Soul Urn ] The Urn is now always dropped off on top of the bridge on the middle of the map.",
+  "[ Soul Urn ] Once dropped off, the Urn will go into a Depositing phase for a set amount of time, depending on which team the urn favors (3s/5s/10s for Favored/Neutral/Unfavored).",
+  "[ Soul Urn ] While in the Depositing phase, the enemy team can Heavy Melee the urn to have their team claim it and cause it to switch sides. This adds +1.25s to that team's timer.",
+  "[ Soul Urn ] If the urn is Favored or Unfavored (in a comeback state), then the Favored team will get +50% Bullet and Spirit Resist in a 60m radius around the urn while it is being carried, dropped or deposited.",
+  "[ Soul Urn ] After 35s (aggregate time held per team), the carrier will start taking 5% Max HP damage per second (previously was 45s and 0.15% Max HP damage). Urn damage is lethal.",
+  "[ Soul Urn ] When the Urn is fumbled, it will wait 13s if there is a player within 25m. Afterwards it can no longer be picked up and will quickly run back to its spawn position.",
+  "[ Soul Urn ] No longer silences you while carrying. You are still disarmed and movement silenced.",
+  "[ Soul Urn ] No longer grants +30% Bullet and Spirit Resist while carrying it.",
+  "[ Soul Urn ] Area around depositing the urn is revealed (urn runner is also revealed as usual).",
+  "[ Soul Urn ] The last person to contest the urn gets the +3 Golden Idol buffs, falling back to the original carrier if nobody contested it.",
+];
+
+const ITEMS_NOTES = [
+  "Added a new T1 Vitality Item, Grit. Active grants you 200 Barrier for 4s. Innate grants 1 Out of Combat Regen. Cooldown: 60s. Upgrades to Weapon Shielding, Spirit Shielding, Reactive Barrier, and Guardian Ward.",
+  "Restorative Shot: NPC Healing increased from 15 to 20",
+  "Melee Charge: Cooldown reduced from 7s to 5s",
+  "Active Reload: Lifesteal increased from 14% to 16%",
+  "Weakening Headshot: Now works vs NPCs",
+  "Fleetfoot: Now grants +6% Weapon Damage",
+  "Fleetfoot: Active slow resistance increased from 35% to 40%",
+  "Opening Rounds: Spirit Power reduced from +7 to +4",
+  "Slowing Bullets: Dash Distance slow reduced from -25% to -22%",
+  "Mystic Shot: Spirit scaling increased from 1 to 1.2",
+  "Recharging Rush: Cooldown increased from 24s to 25s",
+  "Tesla Bullets: Proc cooldown reduced from 0.25s to 0.2s",
+  "Alchemical Fire: Damage per Second spirit scaling increased from 0.152 to 0.2",
+  "Ballistic Enhancement: Now upgrades from Mystic Expansion",
+  "Ballistic Enhancement: Ability Range increased from +20% to +22%",
+  "Weighted Shots: Dash Distance slow reduced from -25% to -22%",
+  "Weighted Shots: Debuff resistance increased from 20% to 22%",
+  "Shadow Weave: Duration increased from 10s to 13s",
+  "Shadow Weave: Ambush Fire Rate increased from 20% to 25%",
+  "Shadow Weave: Ambush Spirit Power increased from 20 to 25",
+  "Shadow Weave: Ambush Melee Damage increased from 20% to 25%",
+  "Escalating Resilience: Max Ammo increased from 30% to 35%",
+  "Escalating Resilience: Weapon Damage increased from 15% to 18%",
+  "Heroic Aura: Radius increased from 30m to 35m",
+  "Sharpshooter: Now upgrades from High-Velocity Rounds (in addition to Long Range). Grants +60% Bullet Velocity.",
+  "Sharpshooter: Long range weapon damage reduced from 70% to 60%",
+  "Sharpshooter: Now has innate 10% Weapon Damage (from components)",
+  "Hunter's Aura: Fire Rate reduction increased from -14% to -15%",
+  "Cultist Sacrifice: Weapon Damage increased from 8% to 10%",
+  "Cultist Sacrifice: Weapon Damage boon scaling increased from 0.7 to 0.8",
+  "Cultist Sacrifice: Bonus Souls increased from 170% to 180%",
+  "Toxic Bullets: No longer builds up from melee attacks",
+  "Capacitor: Proc cooldown reduced from 0.25s to 0.2s",
+  "Crushing Fists: Cooldown reduced from 7s to 5s",
+  "Crushing Fists: Melee damage increased from 20% to 22%",
+  "Frenzy: Triggered debuff resistance increased from 30% to 40%",
+  "Crippling Headshot: Now works vs NPCs",
+  "Spiritual Overflow: Spirit Lifesteal moved from Active to Innate (reduced from 16% to 13%)",
+  "Spiritual Overflow: Now builds from Spirit Lifesteal (gains the innates it has)",
+  "Glass Cannon: Max Health reduction reduced from -15% to -13%",
+  "Silencer: Spirit Resistance reduced from 15% to 12%",
+  "Spellslinger: Cooldown Reduction reduced from 6% to 5%",
+  "Healing Rite: Spirit scaling increased from 0.93 to 1.1",
+  "Extra Regen: Regen reduced from 3 to 2.5",
+  "Extra Regen: Out of Combat regen increased from 1 to 1.5",
+  "Rebuttal: Parry cooldown reduced from -2s to -1.75s",
+  "Debuff Reducer: Now grants +90 Health",
+  "Return Fire: Duration increased from 6s to 6.5s",
+  "Healing Booster: Fixed various abilities and items not being boosted correctly",
+  "Restorative Locket: No longer has a minimum of 1 stamina restore",
+  "Restorative Locket: Max stamina restored reduced from 4 to 3",
+  "Reactive Barrier: Now grants +1 Out of Combat Regen (from components)",
+  "Spirit Shielding: No longer grants +1.75m Move Speed on activation",
+  "Spirit Shielding: Proc now also temporarily grants +18% Spirit Resistance (for the 8s duration)",
+  "Weapon Shielding: No longer grants +1.75m Move Speed on activation",
+  "Weapon Shielding: Proc now also temporarily grants +18% Bullet Resistance (for the 8s duration)",
+  "Guardian Ward: Barrier increased from 200 to 250",
+  "Guardian Ward: Cooldown increased from 45s to 60s",
+  "Guardian Ward: Now grants +1.5 Out of Combat Regen (from components)",
+  "Bullet Lifesteal: Now grants +6% Weapon Damage",
+  "Battle Vest: Weapon Damage increased from 15% to 18%",
+  "Dispel Magic: Cooldown increased from 40s to 45s",
+  "Spirit Lifesteal: Bonus Health increased from +70 to +90",
+  "Fury Trance: Active duration increased from 6s to 6.5s",
+  "Fury Trance: Gains the +6% Weapon Damage (from component)",
+  "Fury Trance: Fire Rate increased from 30% to 32%",
+  "Majestic Leap: Now grants +50% air control for the duration of the barrier",
+  "Majestic Leap: Barrier boon scaling increased from 8 to 12",
+  "Fortitude: Move speed increased from 1.25m to 1.5m",
+  "Veil Walker: Heal per boon increased from 6 to 8",
+  "Veil Walker: Invisibility duration increased from 7s to 8s",
+  "Counterspell: Spirit Power reduced from +8 to +5",
+  "Divine Barrier: Now grants +1.5 Out of Combat Regen (from components)",
+  "Juggernaut: Fire Rate reduction increased from -36% to -40%",
+  "Juggernaut: Move speed bonus increased from +2m to +2.5m",
+  "Spellbreaker: Now grants +90 Health (from components)",
+  "Indomitable: Barrier scaling increased from 1.8 to 2.0",
+  "Indomitable: Now has +2 Out of Combat Regen (from components)",
+  "Indomitable: Bullet Resist increased from 8% to 10%",
+  "Indomitable: Spirit Resist increased from 8% to 10%",
+  "Witchmail: Spirit Resist increased from 20% to 22%",
+  "Unstoppable: Cooldown reduced from 65s to 60s",
+  "Infuser: Duration increased from 6s to 7s",
+  "Infuser: Gains +6 Spirit Power (from components)",
+  "Vampiric Burst: Duration increased from 4.5s to 5s",
+  "Vampiric Burst: Now grants +6% Weapon Power (from components)",
+  "Leech: Updated bonus HP to match the components",
+  "Golden Goose Egg: Permanent buff from every 100 souls to every 80",
+  "Mystic Regeneration: Regen duration increased from 6s to 7s",
+  "Rusted Barrel: Bonus health increased from 50 to 60",
+  "Cold Front: Radius reduced from 12m to 10m",
+  "Cold Front: Damage height increased from 5m to 7m",
+  "Bullet Resist Shredder: No longer grants +65 Bonus Health",
+  "Bullet Resist Shredder: Bullet Resist increased from 8% to 9%",
+  "Bullet Resist Shredder: Now grants +9% Weapon Damage",
+  "Mystic Slow: Bonus Health increased from +30 to +50",
+  "Arcane Surge: Fixed various interaction bugs with different abilities",
+  "Surge of Power: Imbued Spirit Power increased from 24 to 25",
+  "Spirit Snatch: Bonus damage spirit scaling increased from 0.744 to 0.84",
+  "Spirit Snatch: Spirit Power Steal increased from 20 to 28",
+  "Decay: Cooldown reduced from 32s to 30s",
+  "Disarming Hex: Duration increased from 4s to 4.25s",
+  "Torment Pulse: Melee Resist increased from 15% to 18%",
+  "Radiant Regeneration: Regen duration increased from 6s to 7s",
+  "Rapid Recharge: Spirit Power for Charged Abilities increased from +10 to +14",
+  "Magic Carpet: Now innately grants -15% Gravity and Air Control by +25%",
+  "Arctic Blast: Slowed targets now have their stamina regen frozen for the 4s slow duration",
+  "Arctic Blast: Radius increased from 12m to 16m",
+  "Arctic Blast: Damage height increased from 5m to 7m",
+  "Arctic Blast: No longer does 15% damage amp",
+  "Arctic Blast: Immobilize increased from 0.75s to 1s",
+  "Focus Lens: Duration increased from 4s to 4.5s",
+  "Scourge: Debuff resist increased from 15% to 17%",
+  "Mercurial Magnum: Base Bullet Damage spirit scaling increased from 0.465 to 0.49",
+  "Vortex Web: Fixed the debuff losing gravity modification when upgraded from Slowing Hex",
+];
+
+const STREETBRAWL_NOTES = [
+  "Fixed the following Enhanced Items not maintaining their stats from components: Opening Rounds, Tankbuster, Kinetic Dash, Radiant Regeneration, Burst Fire, Veil Walker, Arcane Surge, Fury Trance, Leech",
+];
+
+const ITEM_IMAGES = {
+  'Active Reload': 'https://deadlock.wiki/images/thumb/b/b4/Active_Reload.png/52px-Active_Reload.png',
+  'Alchemical Fire': 'https://deadlock.wiki/images/thumb/f/fc/Alchemical_Fire.png/52px-Alchemical_Fire.png',
+  'Arcane Surge': 'https://deadlock.wiki/images/thumb/b/bb/Arcane_Surge.png/52px-Arcane_Surge.png',
+  'Arctic Blast': 'https://deadlock.wiki/images/thumb/3/30/Arctic_Blast.png/52px-Arctic_Blast.png',
+  'Ballistic Enhancement': 'https://deadlock.wiki/images/thumb/d/d4/Ballistic_Enchantment.png/52px-Ballistic_Enchantment.png',
+  'Battle Vest': 'https://deadlock.wiki/images/thumb/7/7d/Battle_Vest.png/52px-Battle_Vest.png',
+  'Blood Tribute': 'https://deadlock.wiki/images/thumb/a/af/Blood_Tribute.png/52px-Blood_Tribute.png',
+  'Bullet Lifesteal': 'https://deadlock.wiki/images/thumb/5/57/Bullet_Lifesteal_%28item%29.png/52px-Bullet_Lifesteal_%28item%29.png',
+  'Bullet Resist Shredder': 'https://deadlock.wiki/images/thumb/7/7d/Bullet_Resist_Shredder.png/52px-Bullet_Resist_Shredder.png',
+  'Bullet Resilience': 'https://deadlock.wiki/images/thumb/4/4d/Bullet_Resilience.png/52px-Bullet_Resilience.png',
+  'Capacitor': 'https://deadlock.wiki/images/thumb/b/b5/Capacitor.png/52px-Capacitor.png',
+  'Cold Front': 'https://deadlock.wiki/images/thumb/4/4d/Cold_Front.png/52px-Cold_Front.png',
+  'Colossus': 'https://deadlock.wiki/images/thumb/b/bb/Colossus.png/52px-Colossus.png',
+  'Counterspell': 'https://deadlock.wiki/images/thumb/5/51/Counterspell.png/52px-Counterspell.png',
+  'Crippling Headshot': 'https://deadlock.wiki/images/thumb/6/6c/Crippling_Headshot.png/52px-Crippling_Headshot.png',
+  'Crushing Fists': 'https://deadlock.wiki/images/thumb/c/ca/Crushing_Fists.png/52px-Crushing_Fists.png',
+  'Cultist Sacrifice': 'https://deadlock.wiki/images/thumb/e/eb/Cultist_Sacrifice.png/52px-Cultist_Sacrifice.png',
+  'Decay': 'https://deadlock.wiki/images/thumb/9/93/Decay.png/52px-Decay.png',
+  'Debuff Reducer': 'https://deadlock.wiki/images/thumb/c/c3/Debuff_Reducer.png/52px-Debuff_Reducer.png',
+  'Disarming Hex': 'https://deadlock.wiki/images/thumb/2/2d/Disarming_Hex.png/52px-Disarming_Hex.png',
+  'Dispel Magic': 'https://deadlock.wiki/images/thumb/d/da/Dispel_Magic.png/52px-Dispel_Magic.png',
+  'Divine Barrier': 'https://deadlock.wiki/images/thumb/7/74/Divine_Barrier.png/52px-Divine_Barrier.png',
+  'Escalating Resilience': 'https://deadlock.wiki/images/thumb/5/57/Escalating_Resilience.png/52px-Escalating_Resilience.png',
+  'Extra Regen': 'https://deadlock.wiki/images/thumb/6/60/Extra_Regen.png/52px-Extra_Regen.png',
+  'Fleetfoot': 'https://deadlock.wiki/images/thumb/c/cf/Fleetfoot.png/52px-Fleetfoot.png',
+  'Focus Lens': 'https://deadlock.wiki/images/thumb/3/3c/Focus_Lens.png/52px-Focus_Lens.png',
+  'Fortitude': 'https://deadlock.wiki/images/thumb/c/c6/Fortitude.png/52px-Fortitude.png',
+  'Frenzy': 'https://deadlock.wiki/images/thumb/f/f1/Frenzy.png/52px-Frenzy.png',
+  'Fury Trance': 'https://deadlock.wiki/images/thumb/1/15/Fury_Trance.png/52px-Fury_Trance.png',
+  'Glass Cannon': 'https://deadlock.wiki/images/thumb/6/6e/Glass_Cannon.png/52px-Glass_Cannon.png',
+  'Golden Goose Egg': 'https://deadlock.wiki/images/thumb/a/a8/Golden_Goose_Egg.png/52px-Golden_Goose_Egg.png',
+  'Grit': 'https://deadlock.wiki/images/thumb/1/17/Grit.png/52px-Grit.png',
+  'Guardian Ward': 'https://deadlock.wiki/images/thumb/6/60/Guardian_Ward.png/52px-Guardian_Ward.png',
+  'Healing Booster': 'https://deadlock.wiki/images/thumb/b/b0/Healing_Booster.png/52px-Healing_Booster.png',
+  'Healing Rite': 'https://deadlock.wiki/images/thumb/7/72/Healing_Rite.png/52px-Healing_Rite.png',
+  'Heroic Aura': 'https://deadlock.wiki/images/thumb/6/60/Heroic_Aura.png/52px-Heroic_Aura.png',
+  "Hunter's Aura": 'https://deadlock.wiki/images/thumb/0/08/Hunter%27s_Aura.png/52px-Hunter%27s_Aura.png',
+  'Indomitable': 'https://deadlock.wiki/images/thumb/f/ff/Indomitable.png/52px-Indomitable.png',
+  'Infuser': 'https://deadlock.wiki/images/thumb/c/c3/Infuser.png/52px-Infuser.png',
+  'Inhibitor': 'https://deadlock.wiki/images/thumb/9/99/Inhibitor.png/52px-Inhibitor.png',
+  'Juggernaut': 'https://deadlock.wiki/images/thumb/0/07/Juggernaut.png/52px-Juggernaut.png',
+  'Leech': 'https://deadlock.wiki/images/thumb/3/32/Leech.png/52px-Leech.png',
+  'Magic Carpet': 'https://deadlock.wiki/images/thumb/2/25/Magic_Carpet.png/52px-Magic_Carpet.png',
+  'Majestic Leap': 'https://deadlock.wiki/images/thumb/d/d7/Majestic_Leap.png/52px-Majestic_Leap.png',
+  'Melee Charge': 'https://deadlock.wiki/images/thumb/e/ea/Melee_Charge.png/52px-Melee_Charge.png',
+  'Mercurial Magnum': 'https://deadlock.wiki/images/thumb/a/af/Mercurial_Magnum.png/52px-Mercurial_Magnum.png',
+  'Mystic Regeneration': 'https://deadlock.wiki/images/thumb/1/17/Mystic_Regeneration.png/52px-Mystic_Regeneration.png',
+  'Mystic Shot': 'https://deadlock.wiki/images/thumb/5/5a/Mystic_Shot.png/52px-Mystic_Shot.png',
+  'Mystic Slow': 'https://deadlock.wiki/images/thumb/6/65/Mystic_Slow.png/52px-Mystic_Slow.png',
+  'Opening Rounds': 'https://deadlock.wiki/images/thumb/8/8d/Opening_Rounds.png/52px-Opening_Rounds.png',
+  'Radiant Regeneration': 'https://deadlock.wiki/images/thumb/c/c7/Radiant_Regeneration.png/52px-Radiant_Regeneration.png',
+  'Rapid Recharge': 'https://deadlock.wiki/images/thumb/a/a9/Rapid_Recharge.png/52px-Rapid_Recharge.png',
+  'Reactive Barrier': 'https://deadlock.wiki/images/thumb/f/f2/Reactive_Barrier.png/52px-Reactive_Barrier.png',
+  'Rebuttal': 'https://deadlock.wiki/images/thumb/4/4c/Rebuttal.png/52px-Rebuttal.png',
+  'Recharging Rush': 'https://deadlock.wiki/images/thumb/1/17/Recharging_Rush.png/52px-Recharging_Rush.png',
+  'Restorative Locket': 'https://deadlock.wiki/images/thumb/0/07/Restorative_Locket.png/52px-Restorative_Locket.png',
+  'Restorative Shot': 'https://deadlock.wiki/images/thumb/4/4c/Restorative_Shot.png/52px-Restorative_Shot.png',
+  'Return Fire': 'https://deadlock.wiki/images/thumb/7/7c/Return_Fire.png/52px-Return_Fire.png',
+  'Rusted Barrel': 'https://deadlock.wiki/images/thumb/5/54/Rusted_Barrel.png/52px-Rusted_Barrel.png',
+  'Scourge': 'https://deadlock.wiki/images/thumb/5/58/Scourge.png/52px-Scourge.png',
+  'Shadow Weave': 'https://deadlock.wiki/images/thumb/4/4e/Shadow_Weave.png/52px-Shadow_Weave.png',
+  'Sharpshooter': 'https://deadlock.wiki/images/thumb/2/25/Sharpshooter.png/52px-Sharpshooter.png',
+  'Silencer': 'https://deadlock.wiki/images/thumb/4/43/Silencer.png/52px-Silencer.png',
+  'Slowing Bullets': 'https://deadlock.wiki/images/thumb/d/db/Slowing_Bullets.png/52px-Slowing_Bullets.png',
+  'Spellbreaker': 'https://deadlock.wiki/images/thumb/2/27/Spellbreaker.png/52px-Spellbreaker.png',
+  'Spellslinger': 'https://deadlock.wiki/images/thumb/a/a8/Spellslinger.png/52px-Spellslinger.png',
+  'Spirit Lifesteal': 'https://deadlock.wiki/images/thumb/d/d9/Spirit_Lifesteal_%28item%29.png/52px-Spirit_Lifesteal_%28item%29.png',
+  'Spirit Resilience': 'https://deadlock.wiki/images/thumb/7/7f/Spirit_Resilience.png/52px-Spirit_Resilience.png',
+  'Spirit Shielding': 'https://deadlock.wiki/images/thumb/4/4a/Spirit_Shielding.png/52px-Spirit_Shielding.png',
+  'Spirit Snatch': 'https://deadlock.wiki/images/thumb/8/83/Spirit_Snatch.png/52px-Spirit_Snatch.png',
+  'Spiritual Overflow': 'https://deadlock.wiki/images/thumb/4/46/Spiritual_Overflow.png/52px-Spiritual_Overflow.png',
+  'Split Shot': 'https://deadlock.wiki/images/thumb/0/04/Split_Shot.png/52px-Split_Shot.png',
+  'Suppressor': 'https://deadlock.wiki/images/thumb/2/21/Suppressor.png/52px-Suppressor.png',
+  'Surge of Power': 'https://deadlock.wiki/images/thumb/d/d4/Surge_of_Power.png/52px-Surge_of_Power.png',
+  'Tesla Bullets': 'https://deadlock.wiki/images/thumb/5/56/Tesla_Bullets.png/52px-Tesla_Bullets.png',
+  'Torment Pulse': 'https://deadlock.wiki/images/thumb/4/42/Torment_Pulse.png/52px-Torment_Pulse.png',
+  'Toxic Bullets': 'https://deadlock.wiki/images/thumb/f/f0/Toxic_Bullets.png/52px-Toxic_Bullets.png',
+  'Trophy Collector': 'https://deadlock.wiki/images/thumb/b/b0/Trophy_Collector.png/52px-Trophy_Collector.png',
+  'Unstoppable': 'https://deadlock.wiki/images/thumb/e/eb/Unstoppable.png/52px-Unstoppable.png',
+  'Vampiric Burst': 'https://deadlock.wiki/images/thumb/d/dc/Vampiric_Burst.png/52px-Vampiric_Burst.png',
+  'Veil Walker': 'https://deadlock.wiki/images/thumb/6/69/Veil_Walker.png/52px-Veil_Walker.png',
+  'Vortex Web': 'https://deadlock.wiki/images/thumb/8/85/Vortex_Web.png/52px-Vortex_Web.png',
+  'Weakening Headshot': 'https://deadlock.wiki/images/thumb/a/ad/Weakening_Headshot.png/52px-Weakening_Headshot.png',
+  'Weapon Shielding': 'https://deadlock.wiki/images/thumb/f/f4/Weapon_Shielding.png/52px-Weapon_Shielding.png',
+  'Weighted Shots': 'https://deadlock.wiki/images/thumb/8/88/Weighted_Shots.png/52px-Weighted_Shots.png',
+  'Witchmail': 'https://deadlock.wiki/images/thumb/0/09/Witchmail.png/52px-Witchmail.png',
+};
+
+// ── TAB SWITCHING ──
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    tabPanels.forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+
+// ── GROUPED ITEM RENDERER ──
+function renderItemNotes(containerId, notes) {
+  const el = document.getElementById(containerId);
+
+  // Group consecutive lines by item name (prefix before colon)
+  const groups = [];
+  for (const note of notes) {
+    const colonIdx = note.indexOf(':');
+    if (colonIdx > 0) {
+      const itemName = note.substring(0, colonIdx).trim();
+      const change = note.substring(colonIdx + 1).trim();
+      // Check if same item as last group
+      if (groups.length > 0 && groups[groups.length - 1].name === itemName) {
+        groups[groups.length - 1].changes.push(change);
+      } else {
+        groups.push({ name: itemName, changes: [change] });
+      }
+    } else {
+      // No colon — treat as standalone (e.g. "Added a new T1 item, Grit...")
+      // Try to extract item name from "Added ... ItemName."
+      const addedMatch = note.match(/^Added a new [^,]+,\s*([\w\s'-]+?)\./);
+      const itemName = addedMatch ? addedMatch[1].trim() : null;
+      if (itemName && groups.length > 0 && groups[groups.length - 1].name === itemName) {
+        groups[groups.length - 1].changes.push(note);
+      } else {
+        groups.push({ name: itemName || '—', changes: [note], noPrefix: true });
+      }
+    }
+  }
+
+  for (const group of groups) {
+    const imgUrl = ITEM_IMAGES[group.name];
+
+    const div = document.createElement('div');
+    div.className = 'item-group';
+
+    const iconHTML = imgUrl
+      ? `<img class="item-group-icon" src="${imgUrl}" alt="${group.name}" loading="lazy" onerror="this.style.opacity=0.2">`
+      : `<div class="item-group-icon-placeholder"></div>`;
+
+    const changesHTML = group.changes.map(c =>
+      `<li class="item-group-change"><span class="item-group-bullet">◆</span><span>${c}</span></li>`
+    ).join('');
+
+    div.innerHTML = `
+      ${iconHTML}
+      <div class="item-group-body">
+        <div class="item-group-name">${group.name === '—' ? '' : group.name}</div>
+        <ul class="item-group-changes">${changesHTML}</ul>
+      </div>
+    `;
+    el.appendChild(div);
+  }
+}
+
+// ── FLAT LIST RENDERER ──
+function renderFlatNotes(containerId, notes) {
+  const el = document.getElementById(containerId);
+  const list = document.createElement('ul');
+  list.className = 'changes-list';
+  notes.forEach(note => {
+    const li = document.createElement('li');
+    li.className = 'change-item';
+    li.innerHTML = `<span class="change-bullet">◆</span><span class="change-text">${note}</span>`;
+    list.appendChild(li);
+  });
+  el.appendChild(list);
+}
+
+renderFlatNotes('generalContent', GENERAL_NOTES);
+renderItemNotes('itemsContent', ITEMS_NOTES);
+renderFlatNotes('streetbrawlContent', STREETBRAWL_NOTES);
+
+// ── HERO GRID ──
 const grid = document.getElementById('heroGrid');
 const heroPanel = document.getElementById('heroPanel');
 const emptyState = document.getElementById('emptyState');
@@ -497,7 +1001,6 @@ function selectHero(hero, cardEl) {
   cardEl.classList.add('active');
 
   const notes = PATCH_NOTES[hero.name] || [];
-  const cardSrc = hero.url;
 
   emptyState.style.display = 'none';
   heroPanel.style.display = 'block';
@@ -511,7 +1014,7 @@ function selectHero(hero, cardEl) {
 
   heroPanel.innerHTML = `
     <div class="hero-detail-header">
-      <img class="detail-card-img" src="${cardSrc}" alt="${hero.name}">
+      <img class="detail-card-img" src="${hero.url}" alt="${hero.name}">
       <div class="detail-name-block">
         <h2>${hero.name}</h2>
         <div class="detail-count"><span>${notes.length}</span> balance change${notes.length !== 1 ? 's' : ''} this patch</div>
@@ -525,11 +1028,48 @@ function selectHero(hero, cardEl) {
 }
 
 searchInput.addEventListener('input', e => {
-  const q = e.target.value.toLowerCase().trim();
+  const q = e.target.value.trim();
   cards.forEach(({ card }) => {
-    card.hidden = q !== '' && !card.dataset.name.includes(q);
+    if (!q) { card.hidden = false; return; }
+    const regex = new RegExp('\\b' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    card.hidden = !regex.test(card.dataset.name);
   });
 });
 </script>
+
+<footer style="
+  border-top: 1px solid #2a2318;
+  margin-top: 3rem;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+  background: #0f0d0a;
+">
+  <div style="max-width: 1400px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between; align-items: flex-start;">
+
+    <ul style="list-style:none; font-family: 'Crimson Text', serif; font-size: 0.9rem; color: #8a7d6a; line-height: 1.7; flex: 1; min-width: 280px;">
+      <li id="footer-info-copyright">
+        Content on this site is licensed under
+        <a class="external" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color:#c9a55a; text-decoration:none;">Creative Commons Attribution-NonCommercial-ShareAlike</a>,
+        except non-text media and any game content.<br>
+        <i>Deadlock</i> is a registered trademark of
+        <a href="https://www.valvesoftware.com/" style="color:#c9a55a; text-decoration:none;">Valve Corporation</a>.
+      </li>
+    </ul>
+
+    <ul style="list-style:none; display:flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+      <li id="footer-copyrightico">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="display:block; opacity:0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">
+          <img src="https://deadlock.wiki/resources/assets/licenses/cc-by-nc-sa.png" alt="Creative Commons Attribution-NonCommercial-ShareAlike" width="88" height="31" loading="lazy" style="display:block;">
+        </a>
+      </li>
+    </ul>
+
+  </div>
+  <div style="margin-top: 1.5rem; max-width: 1400px; margin-left: auto; margin-right: auto;">
+    <div style="height:1px; background: linear-gradient(90deg, transparent, #7a5f30, transparent);"></div>
+  </div>
+</footer>
+
 </body>
 </html>
