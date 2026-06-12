@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deadlock — Patch Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0c0a;
+    --panel: #13110e;
+    --card-bg: #1c1812;
+    --gold: #c9a55a;
+    --gold-dim: #7a5f30;
+    --amber: #e8be86;
+    --text: #e8ddc8;
+    --text-dim: #8a7d6a;
+    --accent: #d36c16;
+    --border: #2a2318;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Text', Georgia, serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    text-align: center;
+    padding: 2.5rem 2rem 1.5rem;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #1a1510 0%, transparent 100%);
+    z-index: 1;
+  }
+
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 50%; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+
+  .title-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.45em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+
+  h1 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    color: var(--gold);
+    text-shadow: 0 0 40px rgba(201,165,90,0.3), 0 2px 4px rgba(0,0,0,0.8);
+    letter-spacing: 0.08em;
+  }
+
+  .subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 0.3em;
+    margin-top: 0.4rem;
+  }
+
+  /* TABS */
+  .tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    padding: 1.5rem 2rem 0;
+    position: relative;
+    z-index: 1;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .tab-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.6rem 1.6rem 0.75rem;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+    position: relative;
+    bottom: -1px;
+  }
+
+  .tab-btn:hover { color: var(--amber); }
+
+  .tab-btn.active {
+    color: var(--gold);
+    border-bottom-color: var(--gold);
+  }
+
+  /* TAB PANELS */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* HERO TAB */
+  .search-wrap {
+    display: flex;
+    justify-content: center;
+    padding: 1.2rem 2rem 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .search-box {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .search-box input {
+    width: 100%;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: 'Crimson Text', serif;
+    font-size: 1rem;
+    padding: 0.55rem 2.2rem 0.55rem 1rem;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .search-box input:focus { border-color: var(--gold-dim); }
+  .search-box input::placeholder { color: var(--text-dim); }
+  .search-icon {
+    position: absolute; right: 0.7rem; top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim); font-size: 0.9rem; pointer-events: none;
+  }
+
+  .grid-section {
+    padding: 1.5rem 2rem 2rem;
+    position: relative;
+    z-index: 1;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .grid-section::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 2rem; right: 2rem; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+    gap: 8px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .hero-card {
+    position: relative;
+    border-radius: 6px;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+    aspect-ratio: 88 / 119;
+  }
+
+  .hero-card:hover {
+    transform: translateY(-3px) scale(1.04);
+    border-color: var(--gold-dim);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px var(--gold-dim);
+    z-index: 2;
+  }
+
+  .hero-card.active {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px var(--gold), 0 8px 28px rgba(201,165,90,0.3);
+    transform: translateY(-2px);
+  }
+
+  .hero-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    display: block;
+    filter: brightness(0.8);
+    transition: filter 0.12s;
+  }
+
+  .hero-card:hover img,
+  .hero-card.active img { filter: brightness(1); }
+
+  .hero-card-label {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 14px 3px 4px;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.42rem, 1vw, 0.58rem);
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    color: #ffefd7;
+    text-shadow: 0 1px 4px rgba(0,0,0,1), 0 0 8px rgba(0,0,0,1);
+    background: linear-gradient(transparent, rgba(0,0,0,0.8) 50%);
+    line-height: 1.2;
+  }
+
+  .patch-badge {
+    position: absolute;
+    top: 4px; right: 4px;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-size: 0.48rem;
+    font-weight: 700;
+    padding: 1px 4px;
+    border-radius: 2px;
+    letter-spacing: 0.05em;
+    line-height: 1.5;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+
+  .hero-card[hidden] { display: none; }
+
+  .detail-section {
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+    min-height: 220px;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 220px;
+    text-align: center;
+    opacity: 0.4;
+  }
+
+  .empty-state .big-icon { font-size: 3rem; margin-bottom: 1rem; }
+  .empty-state p {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    line-height: 1.9;
+  }
+
+  .hero-panel { animation: fadeUp 0.22s ease; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-detail-header {
+    display: flex;
+    align-items: flex-end;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .hero-detail-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 35%; height: 1px;
+    background: linear-gradient(90deg, var(--gold-dim), transparent);
+  }
+
+  .detail-card-img {
+    width: 72px;
+    height: 97px;
+    object-fit: cover;
+    object-position: top;
+    border-radius: 5px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6), 0 0 0 1px rgba(201,165,90,0.25);
+    flex-shrink: 0;
+  }
+
+  .detail-name-block h2 {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    color: var(--gold);
+    text-shadow: 0 0 30px rgba(201,165,90,0.2);
+    line-height: 1.1;
+  }
+
+  .detail-count {
+    font-family: 'Cinzel', serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    margin-top: 0.35rem;
+  }
+
+  .detail-count span { color: var(--accent); }
+
+  .section-divider {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 1rem;
+  }
+
+  .section-divider::before, .section-divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  .section-divider span {
+    font-family: 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .changes-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    max-width: 900px;
+  }
+
+  .change-item {
+    display: flex;
+    gap: 0.9rem;
+    align-items: baseline;
+    padding: 0.55rem 0.9rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: border-color 0.12s, background 0.12s;
+    line-height: 1.55;
+  }
+
+  .change-item:hover {
+    border-color: var(--gold-dim);
+    background: #1e1a14;
+  }
+
+  .change-bullet { color: var(--gold-dim); flex-shrink: 0; font-size: 0.65rem; margin-top: 0.18rem; }
+  .change-text { font-size: 1rem; color: var(--text); }
+
+  .tier-tag {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.08em;
+    padding: 1px 5px;
+    border-radius: 2px;
+    background: rgba(211,108,22,0.18);
+    border: 1px solid rgba(211,108,22,0.4);
+    color: var(--accent);
+    vertical-align: middle;
+    margin: 0 1px;
+  }
+
+  .no-changes {
+    padding: 2.5rem;
+    text-align: center;
+    color: var(--text-dim);
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+  }
+
+
+  /* ITEM GROUPS */
+  .item-group {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 0.7rem 0.9rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    transition: border-color 0.12s, background 0.12s;
+    margin-bottom: 0.45rem;
+  }
+
+  .item-group:hover {
+    border-color: var(--gold-dim);
+    background: #1e1a14;
+  }
+
+  .item-group-icon {
+    width: 63px;
+    height: 63px;
+    object-fit: contain;
+    flex-shrink: 0;
+    border-radius: 3px;
+    margin-top: 2px;
+    image-rendering: crisp-edges;
+  }
+
+  .item-group-icon-placeholder {
+    width: 63px;
+    height: 63px;
+    flex-shrink: 0;
+    background: var(--border);
+    border-radius: 3px;
+    margin-top: 2px;
+  }
+
+  .item-group-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .item-group-name {
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    color: var(--amber);
+    margin-bottom: 0.35rem;
+  }
+
+  .item-group-changes {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+  }
+
+  .item-group-change {
+    display: flex;
+    gap: 0.65rem;
+    align-items: baseline;
+    font-size: 0.97rem;
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  .item-group-bullet {
+    color: var(--gold-dim);
+    flex-shrink: 0;
+    font-size: 0.55rem;
+    margin-top: 0.2rem;
+  }
+
+  /* GENERAL / ITEMS / STREET BRAWL TABS */
+  .flat-tab-content {
+    padding: 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.2s ease;
+  }
+
+  .flat-section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.58rem;
+    letter-spacing: 0.35em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin: 2rem 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .flat-section-title:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-label">Patch Notes</div>
+  <h1>DEADLOCK</h1>
+  <div class="subtitle">Balance Changes</div>
+</header>
+
+<nav class="tab-bar">
+  <button class="tab-btn active" data-tab="heroes">Heroes</button>
+  <button class="tab-btn" data-tab="general">General</button>
+  <button class="tab-btn" data-tab="items">Items</button>
+  <button class="tab-btn" data-tab="streetbrawl">Street Brawl</button>
+</nav>
+
+<!-- HEROES TAB -->
+<div class="tab-panel active" id="tab-heroes">
+  <div class="search-wrap">
+    <div class="search-box">
+      <input type="text" id="heroSearch" placeholder="Search heroes…" autocomplete="off">
+      <span class="search-icon">⌕</span>
+    </div>
+  </div>
+  <section class="grid-section">
+    <div class="hero-grid" id="heroGrid"></div>
+  </section>
+  <section class="detail-section" id="detailSection">
+    <div class="empty-state" id="emptyState">
+      <div class="big-icon">⚔</div>
+      <p>Select a hero above<br>to view their patch changes</p>
+    </div>
+    <div class="hero-panel" id="heroPanel" style="display:none"></div>
+  </section>
+</div>
+
+<!-- GENERAL TAB -->
+<div class="tab-panel" id="tab-general">
+  <div class="flat-tab-content" id="generalContent"></div>
+</div>
+
+<!-- ITEMS TAB -->
+<div class="tab-panel" id="tab-items">
+  <div class="flat-tab-content" id="itemsContent"></div>
+</div>
+
+<!-- STREET BRAWL TAB -->
+<div class="tab-panel" id="tab-streetbrawl">
+  <div class="flat-tab-content" id="streetbrawlContent"></div>
+</div>
+
+<script>
+const HEROES = [
+  { name: "Abrams",       url: "https://deadlock.wiki/images/thumb/6/6d/Abrams_card.png/88px-Abrams_card.png" },
+  { name: "Apollo",       url: "https://deadlock.wiki/images/thumb/0/0f/Apollo_card.png/88px-Apollo_card.png" },
+  { name: "Bebop",        url: "https://deadlock.wiki/images/thumb/4/49/Bebop_card.png/88px-Bebop_card.png" },
+  { name: "Billy",        url: "https://deadlock.wiki/images/thumb/e/e5/Billy_card.png/88px-Billy_card.png" },
+  { name: "Calico",       url: "https://deadlock.wiki/images/thumb/e/e4/Calico_card.png/88px-Calico_card.png" },
+  { name: "Celeste",      url: "https://deadlock.wiki/images/thumb/9/90/Celeste_card.png/88px-Celeste_card.png" },
+  { name: "Doorman",      url: "https://deadlock.wiki/images/thumb/6/6f/The_Doorman_card.png/88px-The_Doorman_card.png" },
+  { name: "Drifter",      url: "https://deadlock.wiki/images/thumb/4/4d/Drifter_card.png/88px-Drifter_card.png" },
+  { name: "Dynamo",       url: "https://deadlock.wiki/images/thumb/7/70/Dynamo_card.png/88px-Dynamo_card.png" },
+  { name: "Graves",       url: "https://deadlock.wiki/images/thumb/3/35/Graves_card.png/88px-Graves_card.png" },
+  { name: "Grey Talon",   url: "https://deadlock.wiki/images/thumb/5/5a/Grey_Talon_card.png/88px-Grey_Talon_card.png" },
+  { name: "Haze",         url: "https://deadlock.wiki/images/thumb/1/1b/Haze_card.png/88px-Haze_card.png" },
+  { name: "Holliday",     url: "https://deadlock.wiki/images/thumb/1/10/Holliday_card.png/88px-Holliday_card.png" },
+  { name: "Infernus",     url: "https://deadlock.wiki/images/thumb/6/6b/Infernus_card.png/88px-Infernus_card.png" },
+  { name: "Ivy",          url: "https://deadlock.wiki/images/thumb/2/2c/Ivy_card.png/88px-Ivy_card.png" },
+  { name: "Kelvin",       url: "https://deadlock.wiki/images/thumb/7/76/Kelvin_card.png/88px-Kelvin_card.png" },
+  { name: "Lady Geist",   url: "https://deadlock.wiki/images/thumb/e/e8/Lady_Geist_card.png/88px-Lady_Geist_card.png" },
+  { name: "Lash",         url: "https://deadlock.wiki/images/thumb/5/5a/Lash_card.png/88px-Lash_card.png" },
+  { name: "McGinnis",     url: "https://deadlock.wiki/images/thumb/5/55/McGinnis_card.png/88px-McGinnis_card.png" },
+  { name: "Mina",         url: "https://deadlock.wiki/images/thumb/a/a5/Mina_card.png/88px-Mina_card.png" },
+  { name: "Mirage",       url: "https://deadlock.wiki/images/thumb/7/77/Mirage_card.png/88px-Mirage_card.png" },
+  { name: "Mo & Krill",   url: "https://deadlock.wiki/images/thumb/a/a1/Mo_%26_Krill_card.png/88px-Mo_%26_Krill_card.png" },
+  { name: "Paige",        url: "https://deadlock.wiki/images/thumb/b/b0/Paige_card.png/88px-Paige_card.png" },
+  { name: "Paradox",      url: "https://deadlock.wiki/images/thumb/0/08/Paradox_card.png/88px-Paradox_card.png" },
+  { name: "Pocket",       url: "https://deadlock.wiki/images/thumb/0/06/Pocket_card.png/88px-Pocket_card.png" },
+  { name: "Rem",          url: "https://deadlock.wiki/images/thumb/2/2a/Rem_card.png/88px-Rem_card.png" },
+  { name: "Seven",        url: "https://deadlock.wiki/images/thumb/c/cf/Seven_card.png/88px-Seven_card.png" },
+  { name: "Shiv",         url: "https://deadlock.wiki/images/thumb/b/b8/Shiv_card.png/88px-Shiv_card.png" },
+  { name: "Silver",       url: "https://deadlock.wiki/images/thumb/1/1e/Silver_card.png/88px-Silver_card.png" },
+  { name: "Sinclair",     url: "https://deadlock.wiki/images/thumb/4/41/Sinclair_card.png/88px-Sinclair_card.png" },
+  { name: "Venator",      url: "https://deadlock.wiki/images/thumb/6/6e/Venator_card.png/88px-Venator_card.png" },
+  { name: "Victor",       url: "https://deadlock.wiki/images/thumb/3/3d/Victor_card.png/88px-Victor_card.png" },
+  { name: "Vindicta",     url: "https://deadlock.wiki/images/thumb/6/69/Vindicta_card.png/88px-Vindicta_card.png" },
+  { name: "Viscous",      url: "https://deadlock.wiki/images/thumb/5/53/Viscous_card.png/88px-Viscous_card.png" },
+  { name: "Vyper",        url: "https://deadlock.wiki/images/thumb/b/bd/Vyper_card.png/88px-Vyper_card.png" },
+  { name: "Warden",       url: "https://deadlock.wiki/images/thumb/1/10/Warden_card.png/88px-Warden_card.png" },
+  { name: "Wraith",       url: "https://deadlock.wiki/images/thumb/8/85/Wraith_card.png/88px-Wraith_card.png" },
+  { name: "Yamato",       url: "https://deadlock.wiki/images/thumb/2/2b/Yamato_card.png/88px-Yamato_card.png" },
+];
+
+const PATCH_NOTES = {
+  "Abrams": [],
+  "Apollo": ["Disengaging Sigil velocity increased by 50%","Disengaging Sigil velocity's vertical:horizontal ratio changed from 1.5:1 to 1:1","Disengaging Sigil now allows input to alter the direction Apollo launches himself (A/D biases to the left/right and W/S affect how much backwards motion is applied)","Disengaging Sigil T1 changed from \"+30 Damage\" to \"Gain +25% Fire Rate and Bullet Speed for 8s\"","Disengaging Sigil T2 changed from \"Gain +30% Fire Rate and +50% Bullet Speed for 10s\" to \"On Player Hit: +1 Stamina restored and resets Air Jump/Dash limit\"","Disengaging Sigil T3 changed from \"On Player Hit: +2 stamina restored and reset Air Jump/Dash limit\" to \"Recast within 4s\"","Flawless Advance now allows Apollo to parry during it"],
+  "Bebop": ["Exploding Uppercut T3 increased from +17% Missing Health to +18%","Fixed Sticky Bomb T3 duration ending once the bomb went off rather than the 5s duration","Sticky Bomb T3 changed from \"On Cast: +5m Move Speed and +20% Fire Rate for 5s\" to \"On Cast: +5m Move Speed and +25% Debuff Resistance for 6s\" (applies retroactively)"],
+  "Billy": [],
+  "Calico": ["Gloom Bombs melee resist debuff now stacks additively","Gloom Bombs T2 increased from -5% Melee Resist for 5s to -6% for 6s","Gloom Bombs melee resist now applies on impact rather than explosion","Return to Shadows damage increased from 140 to 150","Return to Shadows T2 damage increased from +65 to +75","Return to Shadows T3 heal increased from 350 to 450"],
+  "Celeste": [],
+  "Doorman": ["Call Bell explosion damage spirit scaling reduced from 1.3 to 1.2","Call Bell T3 spirit scaling reduced from 0.4 to 0.35"],
+  "Drifter": [],
+  "Dynamo": [],
+  "Graves": ["Jar of Dead collection rate reduced by 20% (takes longer to gain a charge)","Jar of Dead damage reduced from 17+0.27 to 16+0.25","Jar of Dead bounty increased from 5+0.25/boon to 7+0.5/boon","Grasping Hands T3 Immobilize duration reduced from +1s to +0.75s"],
+  "Grey Talon": ["Gun cycle time increased from 0.5775 to 0.6 (~4% DPS nerf)","Bullet damage growth reduced from +1.0 to +0.85","Rain of Arrows cooldown increased from 22s to 23s","Rain of Arrows T2 reduced from -13s Cooldown to -12s"],
+  "Haze": [],
+  "Holliday": ["Powder Keg now has an alt cast behavior to place the barrel at her feet","Powder Keg various improvements to the launch angles, velocities and feel of casting","Powder Keg now starts with 2 charges","Powder Keg Charge Time increased from 3.5s to 7s","Powder Keg spirit scaling reduced from 1.6 to 1.4","Powder Keg T2 changed from \"+58 Damage\" to \"+1 Charge\"","Powder Keg T3 changed from \"+2 Charges and +0.4s Displacement\" to \"+100 Damage, +0.5 Spirit Scaling and -5s Charge Time\"","Fixed various issues with placing bounce pad on elevated areas","Bounce Pad landing radius reduced from 12m to 9m","Bounce Pad T3 changed from \"+68 Stomp Damage and Improved Spirit Scaling\" to \"+0.7s Stomp Stun\" (only triggers from Holliday)"],
+  "Infernus": ["Fixed Afterburn Max duration refreshing not properly accounting for both Debuff Resist and +Ability Duration","Fixed Concussive Combustion cooldown not updating when getting the T2 or other CD reducing items when the ability is on cooldown"],
+  "Ivy": ["Fixed a bug where Stone Form could sometimes do significantly more damage than intended"],
+  "Kelvin": [],
+  "Lady Geist": [],
+  "Lash": [],
+  "McGinnis": ["Mini Turret DPS rescaled from 30+0.39 to 24+0.42 (break even at 200 spirit power)","Mini Turrets T3 Fire Rate reduced from +30% to +25%","Fixed some rare cases where Heavy Barrage would stop working","Heavy Barrage DPS reduced from 22.5 to 21"],
+  "Mina": [],
+  "Mirage": [],
+  "Mo & Krill": [],
+  "Paige": ["Rallying Charge distance for max amp reduced from 350m to 250m","Rallying Charge T2 increased from -30s Cooldown to -50s","Plot Armor barrier spirit scaling increased from 1.3 to 1.5","Plot Armor T3 barrier spirit scaling increased from +0.3 to +0.5"],
+  "Paradox": [],
+  "Pocket": ["Bullet damage growth reduced from +0.2 to +0.16","Flying Cloak T3 reduced from -13s Cooldown to -12s","Affliction now does half damage on objectives"],
+  "Rem": [],
+  "Seven": ["Bullet damage growth reduced from 0.337 to 0.24","Power Surge T3 reduced from +12s Duration to +10s","Storm Cloud now hits breakables"],
+  "Shiv": ["Killing Blow now has +30% more cooldown whenever it does not execute a player"],
+  "Silver": ["Lycan Curse cooldown increased from 40s to 70s","Lycan Curse T3 no longer heals"],
+  "Sinclair": [],
+  "Venator": [],
+  "Victor": ["Aura of Suffering radius reduced from 9m to 8m","Aura of Suffering T3 now also increases radius by +1m","Fixed some client performance issues when using Aura of Suffering","Shocking Reanimation cooldown increased from 230s to 240s","Shocking Reanimation T3 reduced from -120s Cooldown to -110s","Shocking Reanimation T3 increased from +150 Damage to +175"],
+  "Vindicta": ["Assassinate Max Bonus Damage spirit scaling increased from 1.7 to 2.0"],
+  "Viscous": ["Puddle Punch T2 increased from +40% Lifesteal to +60%","Goo Ball T2 now also increases Bullet and Spirit Resist by +10%"],
+  "Vyper": [],
+  "Warden": ["Bullet falloff reduced from 20m->58m to 18m->47m","Alchemical Flask spirit scaling reduced from 0.73 to 0.63","Alchemical Flask T2 reduced from +40 Damage to +35","Alchemical Flask T2 increased from -20% Weapon Damage to -25%","Willpower spirit scaling increased from +0.5 to +0.8","Binding Word T3 reduced from -18s Cooldown to -14s","Last Stand lifesteal increased from 65% to 75%","Last Stand T2 increased from -30s Cooldown to -35s","Last Stand T3 increased from +3s Duration to +4s"],
+  "Wraith": [],
+  "Yamato": [],
+};
+
+const GENERAL_NOTES = [
+  "Urn give up time reduced from 75s to 60s",
+  "Urn bounty reduced by 10% (unreduced for trailing team)",
+  "Breakables health permanent bonus reduced from 15/25/35 to 15/20/30 for level 1/2/3",
+  "Kill comeback bounty values increased by 8%",
+];
+
+const ITEMS_NOTES = [
+  "Opening Rounds: Conditional Weapon Damage bonus reduced from 30% to 25%",
+  "Opening Rounds: Spirit Power increased from +4 to +7",
+  "Arcane Surge: Fixed various cases with the bonuses not working",
+];
+
+const STREETBRAWL_NOTES = [
+  "All ability and item range/radius values are reduced by 10%",
+];
+
+const ITEM_IMAGES = {
+  'Active Reload': 'https://deadlock.wiki/images/thumb/b/b4/Active_Reload.png/52px-Active_Reload.png',
+  'Alchemical Fire': 'https://deadlock.wiki/images/thumb/f/fc/Alchemical_Fire.png/52px-Alchemical_Fire.png',
+  'Arcane Surge': 'https://deadlock.wiki/images/thumb/b/bb/Arcane_Surge.png/52px-Arcane_Surge.png',
+  'Arctic Blast': 'https://deadlock.wiki/images/thumb/3/30/Arctic_Blast.png/52px-Arctic_Blast.png',
+  'Ballistic Enhancement': 'https://deadlock.wiki/images/thumb/d/d4/Ballistic_Enchantment.png/52px-Ballistic_Enchantment.png',
+  'Battle Vest': 'https://deadlock.wiki/images/thumb/7/7d/Battle_Vest.png/52px-Battle_Vest.png',
+  'Blood Tribute': 'https://deadlock.wiki/images/thumb/a/af/Blood_Tribute.png/52px-Blood_Tribute.png',
+  'Bullet Lifesteal': 'https://deadlock.wiki/images/thumb/5/57/Bullet_Lifesteal_%28item%29.png/52px-Bullet_Lifesteal_%28item%29.png',
+  'Bullet Resist Shredder': 'https://deadlock.wiki/images/thumb/7/7d/Bullet_Resist_Shredder.png/52px-Bullet_Resist_Shredder.png',
+  'Bullet Resilience': 'https://deadlock.wiki/images/thumb/4/4d/Bullet_Resilience.png/52px-Bullet_Resilience.png',
+  'Capacitor': 'https://deadlock.wiki/images/thumb/b/b5/Capacitor.png/52px-Capacitor.png',
+  'Cold Front': 'https://deadlock.wiki/images/thumb/4/4d/Cold_Front.png/52px-Cold_Front.png',
+  'Colossus': 'https://deadlock.wiki/images/thumb/b/bb/Colossus.png/52px-Colossus.png',
+  'Counterspell': 'https://deadlock.wiki/images/thumb/5/51/Counterspell.png/52px-Counterspell.png',
+  'Crippling Headshot': 'https://deadlock.wiki/images/thumb/6/6c/Crippling_Headshot.png/52px-Crippling_Headshot.png',
+  'Crushing Fists': 'https://deadlock.wiki/images/thumb/c/ca/Crushing_Fists.png/52px-Crushing_Fists.png',
+  'Cultist Sacrifice': 'https://deadlock.wiki/images/thumb/e/eb/Cultist_Sacrifice.png/52px-Cultist_Sacrifice.png',
+  'Decay': 'https://deadlock.wiki/images/thumb/9/93/Decay.png/52px-Decay.png',
+  'Debuff Reducer': 'https://deadlock.wiki/images/thumb/c/c3/Debuff_Reducer.png/52px-Debuff_Reducer.png',
+  'Disarming Hex': 'https://deadlock.wiki/images/thumb/2/2d/Disarming_Hex.png/52px-Disarming_Hex.png',
+  'Dispel Magic': 'https://deadlock.wiki/images/thumb/d/da/Dispel_Magic.png/52px-Dispel_Magic.png',
+  'Divine Barrier': 'https://deadlock.wiki/images/thumb/7/74/Divine_Barrier.png/52px-Divine_Barrier.png',
+  'Escalating Resilience': 'https://deadlock.wiki/images/thumb/5/57/Escalating_Resilience.png/52px-Escalating_Resilience.png',
+  'Extra Regen': 'https://deadlock.wiki/images/thumb/6/60/Extra_Regen.png/52px-Extra_Regen.png',
+  'Fleetfoot': 'https://deadlock.wiki/images/thumb/c/cf/Fleetfoot.png/52px-Fleetfoot.png',
+  'Focus Lens': 'https://deadlock.wiki/images/thumb/3/3c/Focus_Lens.png/52px-Focus_Lens.png',
+  'Fortitude': 'https://deadlock.wiki/images/thumb/c/c6/Fortitude.png/52px-Fortitude.png',
+  'Frenzy': 'https://deadlock.wiki/images/thumb/f/f1/Frenzy.png/52px-Frenzy.png',
+  'Fury Trance': 'https://deadlock.wiki/images/thumb/1/15/Fury_Trance.png/52px-Fury_Trance.png',
+  'Glass Cannon': 'https://deadlock.wiki/images/thumb/6/6e/Glass_Cannon.png/52px-Glass_Cannon.png',
+  'Golden Goose Egg': 'https://deadlock.wiki/images/thumb/a/a8/Golden_Goose_Egg.png/52px-Golden_Goose_Egg.png',
+  'Grit': 'https://deadlock.wiki/images/thumb/1/17/Grit.png/52px-Grit.png',
+  'Guardian Ward': 'https://deadlock.wiki/images/thumb/6/60/Guardian_Ward.png/52px-Guardian_Ward.png',
+  'Healing Booster': 'https://deadlock.wiki/images/thumb/b/b0/Healing_Booster.png/52px-Healing_Booster.png',
+  'Healing Rite': 'https://deadlock.wiki/images/thumb/7/72/Healing_Rite.png/52px-Healing_Rite.png',
+  'Heroic Aura': 'https://deadlock.wiki/images/thumb/6/60/Heroic_Aura.png/52px-Heroic_Aura.png',
+  "Hunter's Aura": 'https://deadlock.wiki/images/thumb/0/08/Hunter%27s_Aura.png/52px-Hunter%27s_Aura.png',
+  'Indomitable': 'https://deadlock.wiki/images/thumb/f/ff/Indomitable.png/52px-Indomitable.png',
+  'Infuser': 'https://deadlock.wiki/images/thumb/c/c3/Infuser.png/52px-Infuser.png',
+  'Inhibitor': 'https://deadlock.wiki/images/thumb/9/99/Inhibitor.png/52px-Inhibitor.png',
+  'Juggernaut': 'https://deadlock.wiki/images/thumb/0/07/Juggernaut.png/52px-Juggernaut.png',
+  'Leech': 'https://deadlock.wiki/images/thumb/3/32/Leech.png/52px-Leech.png',
+  'Magic Carpet': 'https://deadlock.wiki/images/thumb/2/25/Magic_Carpet.png/52px-Magic_Carpet.png',
+  'Majestic Leap': 'https://deadlock.wiki/images/thumb/d/d7/Majestic_Leap.png/52px-Majestic_Leap.png',
+  'Melee Charge': 'https://deadlock.wiki/images/thumb/e/ea/Melee_Charge.png/52px-Melee_Charge.png',
+  'Mercurial Magnum': 'https://deadlock.wiki/images/thumb/a/af/Mercurial_Magnum.png/52px-Mercurial_Magnum.png',
+  'Mystic Regeneration': 'https://deadlock.wiki/images/thumb/1/17/Mystic_Regeneration.png/52px-Mystic_Regeneration.png',
+  'Mystic Shot': 'https://deadlock.wiki/images/thumb/5/5a/Mystic_Shot.png/52px-Mystic_Shot.png',
+  'Mystic Slow': 'https://deadlock.wiki/images/thumb/6/65/Mystic_Slow.png/52px-Mystic_Slow.png',
+  'Opening Rounds': 'https://deadlock.wiki/images/thumb/8/8d/Opening_Rounds.png/52px-Opening_Rounds.png',
+  'Radiant Regeneration': 'https://deadlock.wiki/images/thumb/c/c7/Radiant_Regeneration.png/52px-Radiant_Regeneration.png',
+  'Rapid Recharge': 'https://deadlock.wiki/images/thumb/a/a9/Rapid_Recharge.png/52px-Rapid_Recharge.png',
+  'Reactive Barrier': 'https://deadlock.wiki/images/thumb/f/f2/Reactive_Barrier.png/52px-Reactive_Barrier.png',
+  'Rebuttal': 'https://deadlock.wiki/images/thumb/4/4c/Rebuttal.png/52px-Rebuttal.png',
+  'Recharging Rush': 'https://deadlock.wiki/images/thumb/1/17/Recharging_Rush.png/52px-Recharging_Rush.png',
+  'Restorative Locket': 'https://deadlock.wiki/images/thumb/0/07/Restorative_Locket.png/52px-Restorative_Locket.png',
+  'Restorative Shot': 'https://deadlock.wiki/images/thumb/4/4c/Restorative_Shot.png/52px-Restorative_Shot.png',
+  'Return Fire': 'https://deadlock.wiki/images/thumb/7/7c/Return_Fire.png/52px-Return_Fire.png',
+  'Rusted Barrel': 'https://deadlock.wiki/images/thumb/5/54/Rusted_Barrel.png/52px-Rusted_Barrel.png',
+  'Scourge': 'https://deadlock.wiki/images/thumb/5/58/Scourge.png/52px-Scourge.png',
+  'Shadow Weave': 'https://deadlock.wiki/images/thumb/4/4e/Shadow_Weave.png/52px-Shadow_Weave.png',
+  'Sharpshooter': 'https://deadlock.wiki/images/thumb/2/25/Sharpshooter.png/52px-Sharpshooter.png',
+  'Silencer': 'https://deadlock.wiki/images/thumb/4/43/Silencer.png/52px-Silencer.png',
+  'Slowing Bullets': 'https://deadlock.wiki/images/thumb/d/db/Slowing_Bullets.png/52px-Slowing_Bullets.png',
+  'Spellbreaker': 'https://deadlock.wiki/images/thumb/2/27/Spellbreaker.png/52px-Spellbreaker.png',
+  'Spellslinger': 'https://deadlock.wiki/images/thumb/a/a8/Spellslinger.png/52px-Spellslinger.png',
+  'Spirit Lifesteal': 'https://deadlock.wiki/images/thumb/d/d9/Spirit_Lifesteal_%28item%29.png/52px-Spirit_Lifesteal_%28item%29.png',
+  'Spirit Resilience': 'https://deadlock.wiki/images/thumb/7/7f/Spirit_Resilience.png/52px-Spirit_Resilience.png',
+  'Spirit Shielding': 'https://deadlock.wiki/images/thumb/4/4a/Spirit_Shielding.png/52px-Spirit_Shielding.png',
+  'Spirit Snatch': 'https://deadlock.wiki/images/thumb/8/83/Spirit_Snatch.png/52px-Spirit_Snatch.png',
+  'Spiritual Overflow': 'https://deadlock.wiki/images/thumb/4/46/Spiritual_Overflow.png/52px-Spiritual_Overflow.png',
+  'Split Shot': 'https://deadlock.wiki/images/thumb/0/04/Split_Shot.png/52px-Split_Shot.png',
+  'Suppressor': 'https://deadlock.wiki/images/thumb/2/21/Suppressor.png/52px-Suppressor.png',
+  'Surge of Power': 'https://deadlock.wiki/images/thumb/d/d4/Surge_of_Power.png/52px-Surge_of_Power.png',
+  'Tesla Bullets': 'https://deadlock.wiki/images/thumb/5/56/Tesla_Bullets.png/52px-Tesla_Bullets.png',
+  'Torment Pulse': 'https://deadlock.wiki/images/thumb/4/42/Torment_Pulse.png/52px-Torment_Pulse.png',
+  'Toxic Bullets': 'https://deadlock.wiki/images/thumb/f/f0/Toxic_Bullets.png/52px-Toxic_Bullets.png',
+  'Trophy Collector': 'https://deadlock.wiki/images/thumb/b/b0/Trophy_Collector.png/52px-Trophy_Collector.png',
+  'Unstoppable': 'https://deadlock.wiki/images/thumb/e/eb/Unstoppable.png/52px-Unstoppable.png',
+  'Vampiric Burst': 'https://deadlock.wiki/images/thumb/d/dc/Vampiric_Burst.png/52px-Vampiric_Burst.png',
+  'Veil Walker': 'https://deadlock.wiki/images/thumb/6/69/Veil_Walker.png/52px-Veil_Walker.png',
+  'Vortex Web': 'https://deadlock.wiki/images/thumb/8/85/Vortex_Web.png/52px-Vortex_Web.png',
+  'Weakening Headshot': 'https://deadlock.wiki/images/thumb/a/ad/Weakening_Headshot.png/52px-Weakening_Headshot.png',
+  'Weapon Shielding': 'https://deadlock.wiki/images/thumb/f/f4/Weapon_Shielding.png/52px-Weapon_Shielding.png',
+  'Weighted Shots': 'https://deadlock.wiki/images/thumb/8/88/Weighted_Shots.png/52px-Weighted_Shots.png',
+  'Witchmail': 'https://deadlock.wiki/images/thumb/0/09/Witchmail.png/52px-Witchmail.png',
+};
+
+// ── TAB SWITCHING ──
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    tabPanels.forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+
+// ── GROUPED ITEM RENDERER ──
+function renderItemNotes(containerId, notes) {
+  const el = document.getElementById(containerId);
+
+  // Group consecutive lines by item name (prefix before colon)
+  const groups = [];
+  for (const note of notes) {
+    const colonIdx = note.indexOf(':');
+    if (colonIdx > 0) {
+      const itemName = note.substring(0, colonIdx).trim();
+      const change = note.substring(colonIdx + 1).trim();
+      // Check if same item as last group
+      if (groups.length > 0 && groups[groups.length - 1].name === itemName) {
+        groups[groups.length - 1].changes.push(change);
+      } else {
+        groups.push({ name: itemName, changes: [change] });
+      }
+    } else {
+      // No colon — treat as standalone (e.g. "Added a new T1 item, Grit...")
+      // Try to extract item name from "Added ... ItemName."
+      const addedMatch = note.match(/^Added a new [^,]+,\s*([\w\s'-]+?)\./);
+      const itemName = addedMatch ? addedMatch[1].trim() : null;
+      if (itemName && groups.length > 0 && groups[groups.length - 1].name === itemName) {
+        groups[groups.length - 1].changes.push(note);
+      } else {
+        groups.push({ name: itemName || '—', changes: [note], noPrefix: true });
+      }
+    }
+  }
+
+  for (const group of groups) {
+    const imgUrl = ITEM_IMAGES[group.name];
+
+    const div = document.createElement('div');
+    div.className = 'item-group';
+
+    const iconHTML = imgUrl
+      ? `<img class="item-group-icon" src="${imgUrl}" alt="${group.name}" loading="lazy" onerror="this.style.opacity=0.2">`
+      : `<div class="item-group-icon-placeholder"></div>`;
+
+    const changesHTML = group.changes.map(c =>
+      `<li class="item-group-change"><span class="item-group-bullet">◆</span><span>${c}</span></li>`
+    ).join('');
+
+    div.innerHTML = `
+      ${iconHTML}
+      <div class="item-group-body">
+        <div class="item-group-name">${group.name === '—' ? '' : group.name}</div>
+        <ul class="item-group-changes">${changesHTML}</ul>
+      </div>
+    `;
+    el.appendChild(div);
+  }
+}
+
+// ── FLAT LIST RENDERER ──
+function renderFlatNotes(containerId, notes) {
+  const el = document.getElementById(containerId);
+  const list = document.createElement('ul');
+  list.className = 'changes-list';
+  notes.forEach(note => {
+    const li = document.createElement('li');
+    li.className = 'change-item';
+    li.innerHTML = `<span class="change-bullet">◆</span><span class="change-text">${note}</span>`;
+    list.appendChild(li);
+  });
+  el.appendChild(list);
+}
+
+renderFlatNotes('generalContent', GENERAL_NOTES);
+renderItemNotes('itemsContent', ITEMS_NOTES);
+renderFlatNotes('streetbrawlContent', STREETBRAWL_NOTES);
+
+// ── HERO GRID ──
+const grid = document.getElementById('heroGrid');
+const heroPanel = document.getElementById('heroPanel');
+const emptyState = document.getElementById('emptyState');
+const detailSection = document.getElementById('detailSection');
+const searchInput = document.getElementById('heroSearch');
+
+let cards = [];
+
+HEROES.forEach(hero => {
+  const notes = PATCH_NOTES[hero.name] || [];
+
+  const card = document.createElement('div');
+  card.className = 'hero-card';
+  card.dataset.name = hero.name.toLowerCase();
+  card.innerHTML = `
+    <img src="${hero.url}" alt="${hero.name}" loading="lazy" onerror="this.style.opacity=0.25">
+    ${notes.length > 0 ? `<div class="patch-badge">${notes.length}</div>` : ''}
+    <div class="hero-card-label">${hero.name}</div>
+  `;
+  card.addEventListener('click', () => selectHero(hero, card));
+  grid.appendChild(card);
+  cards.push({ card, hero });
+});
+
+function selectHero(hero, cardEl) {
+  cards.forEach(({ card }) => card.classList.remove('active'));
+  cardEl.classList.add('active');
+
+  const notes = PATCH_NOTES[hero.name] || [];
+
+  emptyState.style.display = 'none';
+  heroPanel.style.display = 'block';
+
+  const changesHTML = notes.length === 0
+    ? `<div class="no-changes">No balance changes recorded for this hero in this patch.</div>`
+    : `<ul class="changes-list">${notes.map(note => {
+        const text = note.replace(/\b(T1|T2|T3)\b/g, '<span class="tier-tag">$1</span>');
+        return `<li class="change-item"><span class="change-bullet">◆</span><span class="change-text">${text}</span></li>`;
+      }).join('')}</ul>`;
+
+  heroPanel.innerHTML = `
+    <div class="hero-detail-header">
+      <img class="detail-card-img" src="${hero.url}" alt="${hero.name}">
+      <div class="detail-name-block">
+        <h2>${hero.name}</h2>
+        <div class="detail-count"><span>${notes.length}</span> balance change${notes.length !== 1 ? 's' : ''} this patch</div>
+      </div>
+    </div>
+    <div class="section-divider"><span>Changes</span></div>
+    ${changesHTML}
+  `;
+
+  detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+searchInput.addEventListener('input', e => {
+  const q = e.target.value.trim();
+  cards.forEach(({ card }) => {
+    if (!q) { card.hidden = false; return; }
+    const regex = new RegExp('\\b' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    card.hidden = !regex.test(card.dataset.name);
+  });
+});
+</script>
+
+<footer style="
+  border-top: 1px solid #2a2318;
+  margin-top: 3rem;
+  padding: 2rem;
+  position: relative;
+  z-index: 1;
+  background: #0f0d0a;
+">
+  <div style="max-width: 1400px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: space-between; align-items: flex-start;">
+
+    <ul style="list-style:none; font-family: 'Crimson Text', serif; font-size: 0.9rem; color: #8a7d6a; line-height: 1.7; flex: 1; min-width: 280px;">
+      <li id="footer-info-copyright">
+        Content on this site is licensed under
+        <a class="external" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="color:#c9a55a; text-decoration:none;">Creative Commons Attribution-NonCommercial-ShareAlike</a>,
+        except non-text media and any game content.<br>
+        <i>Deadlock</i> is a registered trademark of
+        <a href="https://www.valvesoftware.com/" style="color:#c9a55a; text-decoration:none;">Valve Corporation</a>.
+      </li>
+    </ul>
+
+    <ul style="list-style:none; display:flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+      <li id="footer-copyrightico">
+        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" style="display:block; opacity:0.6; transition: opacity 0.15s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.6">
+          <img src="https://deadlock.wiki/resources/assets/licenses/cc-by-nc-sa.png" alt="Creative Commons Attribution-NonCommercial-ShareAlike" width="88" height="31" loading="lazy" style="display:block;">
+        </a>
+      </li>
+    </ul>
+
+  </div>
+  <div style="margin-top: 1.5rem; max-width: 1400px; margin-left: auto; margin-right: auto;">
+    <div style="height:1px; background: linear-gradient(90deg, transparent, #7a5f30, transparent);"></div>
+  </div>
+</footer>
+
+</body>
+</html>
